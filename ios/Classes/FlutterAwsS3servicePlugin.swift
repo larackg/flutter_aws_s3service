@@ -32,7 +32,6 @@ public class SwiftFlutterAwsS3servicePlugin: NSObject, FlutterPlugin {
           return "IMG" + result + String(Int64(date.timeIntervalSince1970 * 1000)) + "jpeg"
       }
 
-
       func uploadImageForRegion(_ call: FlutterMethodCall, result: @escaping FlutterResult){
                 let arguments = call.arguments as? NSDictionary
                 let imagePath = arguments!["filePath"] as? String
@@ -42,8 +41,7 @@ public class SwiftFlutterAwsS3servicePlugin: NSObject, FlutterPlugin {
                 let region = arguments!["region"] as? String
                 let subRegion = arguments!["subRegion"] as? String
 
-              let contentTypeParam = arguments!["contentType"] as? String
-
+                let contentTypeParam = arguments!["contentType"] as? String
 
                 print("region" + region!)
 
@@ -103,7 +101,6 @@ public class SwiftFlutterAwsS3servicePlugin: NSObject, FlutterPlugin {
           let region = arguments!["region"] as? String
           let subRegion = arguments!["subRegion"] as? String
 
-
           if(region != nil && subRegion != nil){
               initRegions(region: region!, subRegion: subRegion!)
           }
@@ -131,7 +128,6 @@ public class SwiftFlutterAwsS3servicePlugin: NSObject, FlutterPlugin {
               result("image deleted successfully.")
               return nil
           }
-
 
       }
 

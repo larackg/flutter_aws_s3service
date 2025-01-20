@@ -1,79 +1,83 @@
-import 'package:flutter_aws_s3service/flutter_aws_s3service.dart';
-import 'package:flutter_aws_s3service/flutter_aws_s3service_method_channel.dart';
-import 'package:flutter_aws_s3service/flutter_aws_s3service_platform_interface.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-class MockFlutterAwsS3servicePlatform
-    with MockPlatformInterfaceMixin
-    implements FlutterAwsS3servicePlatform {
-  final _s3service = FlutterAwsS3service();
-
-  MockFlutterAwsS3servicePlatform() {
-    _s3service.initialize(
-        // region: region,
-        // bucketName: bucketName,
-        // accessKeyId: accessKeyId,
-        // secretAccessKey: secretAccessKey,
-        );
-  }
-
-  @override
-  Future<String> getPlatformVersion() => Future.value('42');
-
-  @override
-  Future<bool> deleteFile(String key) {
-    return _s3service.deleteFile(key);
-  }
-
-  @override
-  Future<String> downloadFile(String key, String localPath) {
-    return _s3service.downloadFile(key, localPath);
-  }
-
-  @override
-  Future<String> getSignedUrl(String key, {int expirationInSeconds = 3600}) {
-    return _s3service.getSignedUrl(key);
-  }
-
-  @override
-  Future<void> initialize(
-      {String? identityPoolId,
-      String? region,
-      String? bucketName,
-      String? accessKeyId,
-      String? secretAccessKey}) {
-    // TODO: implement initialize
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> listFiles({String? prefix}) {
-    // TODO: implement listFiles
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> uploadFile(String filePath, String key) {
-    // TODO: implement uploadFile
-    throw UnimplementedError();
-  }
-}
+import 'package:flutter_aws_s3service/flutter_aws_s3service.dart';
 
 void main() {
-  final FlutterAwsS3servicePlatform initialPlatform =
-      FlutterAwsS3servicePlatform.instance;
+  const MethodChannel channel = MethodChannel('flutter_aws_s3service');
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('$MethodChannelFlutterAwsS3service is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelFlutterAwsS3service>());
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (MethodCall methodCall) async {
+        switch (methodCall.method) {
+          case 'getPlatformVersion':
+            return '42';
+          case 'uploadImageToAmazon':
+            return 'https://example.com/test.jpg';
+          case 'uploadImage':
+            return 'https://example.com/uploaded.jpg';
+          case 'deleteImage':
+            return 'success';
+          case 'listFiles':
+            return <dynamic>['file1.jpg', 'file2.jpg'];
+        }
+        return null;
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
   });
 
   test('getPlatformVersion', () async {
-    FlutterAwsS3service flutterAwsS3servicePlugin = FlutterAwsS3service();
-    MockFlutterAwsS3servicePlatform fakePlatform =
-        MockFlutterAwsS3servicePlatform();
-    FlutterAwsS3servicePlatform.instance = fakePlatform;
+    expect(await FlutterAwsS3service.platformVersion, '42');
+  });
 
-    expect(await flutterAwsS3servicePlugin.getPlatformVersion(), '42');
+  test('uploadImage', () async {
+    final result = await FlutterAwsS3service.uploadImage(
+      'test.jpg',
+      'test-bucket',
+      'test-identity'
+    );
+    expect(result, 'https://example.com/test.jpg');
+  });
+
+  test('upload', () async {
+    final result = await FlutterAwsS3service.upload(
+      'test.jpg',
+      'test-bucket',
+      'test-identity',
+      'test-image.jpg',
+      'us-east-1',
+      'sub-region'
+    );
+    expect(result, 'https://example.com/uploaded.jpg');
+  });
+
+  test('delete', () async {
+    final result = await FlutterAwsS3service.delete(
+      'test-bucket',
+      'test-identity',
+      'test-image.jpg',
+      'us-east-1',
+      'sub-region'
+    );
+    expect(result, 'success');
+  });
+
+  test('listFiles', () async {
+    final result = await FlutterAwsS3service.listFiles(
+      'test-bucket',
+      'test-identity',
+      'prefix',
+      'us-east-1',
+      'sub-region'
+    );
+    expect(result, [
+      'https://s3-us-east-1.amazonaws.com/test-bucket/file1.jpg',
+      'https://s3-us-east-1.amazonaws.com/test-bucket/file2.jpg'
+    ]);
   });
 }

@@ -6,9 +6,8 @@ import 'package:flutter/services.dart';
 class FlutterAwsS3service {
   static const MethodChannel _channel = MethodChannel('flutter_aws_s3service');
 
-  static Future<String?> get platformVersion async {
-    final String? version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+  static Future<String> get platformVersion async {
+    return await _channel.invokeMethod('getPlatformVersion');
   }
 
   static Future<String?> uploadImage(
@@ -61,12 +60,15 @@ class FlutterAwsS3service {
       'region': region,
       'subRegion': subRegion
     };
-    List<String> files = new List.empty(growable: true);
+    List<String> files = [];
     try {
-      List<dynamic> keys = await (_channel.invokeMethod('listFiles', params)
-          as FutureOr<List<dynamic>>);
-      for (String key in keys as Iterable<String>) {
-        files.add("https://s3-$region.amazonaws.com/$bucket/$key");
+      final dynamic result = await _channel.invokeMethod('listFiles', params);
+      if (result is List) {
+        for (final dynamic key in result) {
+          if (key is String) {
+            files.add("https://s3-$region.amazonaws.com/$bucket/$key");
+          }
+        }
       }
     } on PlatformException catch (e) {
       debugPrint(e.toString());
