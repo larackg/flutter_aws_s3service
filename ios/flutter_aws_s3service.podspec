@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_aws_s3service'
-  s.version          = '0.0.1'
+  s.version          = '0.0.2'
   s.summary          = 'AWS S3 service operations plugin.'
   s.description      = <<-DESC
 AWS S3 service operations plugin. This package provides a simple interface for

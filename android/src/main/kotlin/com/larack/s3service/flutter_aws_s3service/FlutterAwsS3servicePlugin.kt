@@ -134,7 +134,7 @@ class FlutterAwsS3servicePlugin : FlutterPlugin, MethodCallHandler {
             }
 
             "getPlatformVersion" -> {
-                val version = "0.0.1"
+                val version = "0.0.2"
                 println("getPlatformVersion: $version")
                 result.success(version)
             }
