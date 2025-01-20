@@ -1,112 +1,99 @@
 # flutter_aws_s3service
 
-A Flutter package for AWS S3 service operations. This package provides a simple interface for common
-S3 operations like uploading, downloading, and managing files in AWS S3 buckets.
+AWS S3 service operations plugin. This package provides a simple interface for
+common S3 operations like uploading, downloading, and managing files in AWS S3 buckets.
 
-log tag：AwsS3service
+        package: com.larack.s3service.flutter_aws_s3service
+        pluginClass: FlutterAwsS3servicePlugin
 
-## 1. Features
-
-- Initialize AWS S3 service with identity pool or access keys
-- Upload files to S3 buckets
-- Download files from S3 buckets
-- List files in S3 buckets
-- Delete files from S3 buckets
-- Cross-platform support (iOS, Android)
-
-## 2. Getting started
-
-Add this to your package's `pubspec.yaml` file:
+## Usage
 
 ```yaml
 dependencies:
-  flutter_aws_s3service: ^0.0.1
+  flutter_aws_s3service: '^0.0.1'
 ```
 
-## 3. Usage
+### Example
 
-### Initialize the S3 service
+``` dart
+import 'package:flutter_aws_s3service/flutter_aws_s3service.dart';
+import 'package:flutter_aws_s3service/aws_region.dart';
 
-You can initialize the service using either identity pool ID or access keys:
+//this method only supports image upload. 
+String uploadedImageUrl = await FlutterAwsS3service.uploadImage(
+          _image.path, BUCKET_NAME, IDENTITY_POOL_ID);
 
-```dart
+//Use the below code to specify the region and sub region for image upload
+//Also this method allows to upload all file type including images and pdf etc.
+//We recommend to use this method always. 
+String uploadedImageUrl = await FlutterAwsS3service.upload(
+            _image.path,
+            BUCKET_NAME,
+            IDENTITY_POOL_ID,
+            IMAGE_NAME,
+            AwsRegion.US_EAST_1,
+            AwsRegion.AP_SOUTHEAST_1)
+            
+//use below code to delete an image
+ String result = FlutterAwsS3service.delete(
+            BUCKET_NAME,
+            IDENTITY_POOL_ID,
+            IMAGE_NAME,
+            AwsRegion.US_EAST_1,
+            AwsRegion.AP_SOUTHEAST_1)
+            
+//use below code to list files
+ List<String> files = await FlutterAwsS3service.listFiles(
+            BUCKET_NAME,
+            IDENTITY_POOL_ID,
+            PREFIX,
+            AwsRegion.US_EAST_1,
+            AwsRegion.AP_SOUTHEAST_1)
 
-final s3service = FlutterAwsS3service();
-
-// Initialize with identity pool ID
-await s3service.initialize(region: 'YOUR_REGION', bucketName: 'YOUR_BUCKET_NAME', identityPoolId: 'YOUR_IDENTITY_POOL_ID');
-
-// Or initialize with access keys
-await s3service.initialize(
-region: 'YOUR_REGION',
-bucketName: 'YOUR_BUCKET_NAME',
-accessKeyId: 'YOUR_ACCESS_KEY_ID',
-secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
-);
 ```
 
-### Upload a file
+## Installation
 
-```dart
-// Upload a file and get the URL
-final url = await s3service.uploadFile(filePath, // Local file path
-key // S3 object key (path in bucket)
-);
+### Android & iOS
+
+Run this command with Flutter:
+
+```
+flutter pub add flutter_aws_s3service
 ```
 
-### List files in bucket
+This will add a line like this to your package's pubspec.yaml (and run an implicit flutter pub get):
 
-```dart
-// Get list of files from S3 bucket
-final files = await s3service.listFiles();
-// Returns List<Map<String, dynamic>> containing file information
+```yaml
+dependencies:
+  flutter_aws_s3service: '^0.0.1'
 ```
 
-### Download a file
+Now in your Dart code, you can use:
 
-```dart
-// Download a file from S3
-await s3service.downloadFile(key, // S3 object key
-localPath // Local path to save the file
-);
+```
+import 'package:flutter_aws_s3service/flutter_aws_s3service.dart';
 ```
 
-### Delete files
+### Authors
 
-```dart
-// Delete a single file
-await s3service.deleteFile(key);
-
-// Delete multiple files
-await s3service.deleteFiles(keys);
+```
+This plugin is created by chatgpt.
 ```
 
-## 4. Example
-
-Check out the [example](example) folder for a complete demo application showing how to:
-
-- Initialize the S3 service
-- Upload files with progress tracking
-- List files in the bucket
-- Download files
-- Delete files
-- Handle errors
-
-## 5. Additional information
-
-For more information about AWS S3, visit the [AWS S3 documentation](https://docs.aws.amazon.com/s3).
-
-## 6. Development
+## Development
 
 ### Create project
 
-1. Create plugin project:
+Run this command with Flutter:
 
 ```bash
 flutter create -t plugin --platforms android,ios --org com.larack.s3service flutter_aws_s3service
 ```
 
-### 7. Publish
+### Publish
+
+Run this command with Shell:
 
 ```bash
 flutter pub publish --dry-run

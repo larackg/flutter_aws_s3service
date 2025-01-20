@@ -49,10 +49,9 @@ android {
 
     dependencies {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
-        implementation("com.amazonaws:aws-android-sdk-s3:2.19.3")
-        implementation("com.amazonaws:aws-android-sdk-cognito:2.19.3")
-        implementation("com.amazonaws:aws-android-sdk-core:2.19.3")
         testImplementation("org.mockito:mockito-core:5.0.0")
+        implementation 'com.amazonaws:aws-android-sdk-core:2.77.1'
+        implementation 'com.amazonaws:aws-android-sdk-s3:2.77.1'
     }
 
     testOptions {

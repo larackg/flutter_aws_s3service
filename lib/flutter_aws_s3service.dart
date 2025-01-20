@@ -1,67 +1,76 @@
-import 'flutter_aws_s3service_platform_interface.dart';
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 class FlutterAwsS3service {
-  /// Initialize AWS S3 with credentials
-  /// Either use [identityPoolId] with [region] and [bucketName]
-  /// Or use [accessKeyId], [secretAccessKey], [region], and [bucketName]
-  Future<void> initialize({
-    String? identityPoolId,
-    String? region,
-    String? bucketName,
-    String? accessKeyId,
-    String? secretAccessKey,
-  }) {
-    return FlutterAwsS3servicePlatform.instance.initialize(
-      identityPoolId: identityPoolId,
-      region: region,
-      bucketName: bucketName,
-      accessKeyId: accessKeyId,
-      secretAccessKey: secretAccessKey,
-    );
+  static const MethodChannel _channel = MethodChannel('flutter_aws_s3service');
+
+  static Future<String?> get platformVersion async {
+    final String? version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
   }
 
-  /// Upload a file to S3
-  /// [filePath] is the local path to the file
-  /// [key] is the S3 object key (path in bucket)
-  /// Returns the URL of the uploaded file
-  Future<String> uploadFile(String filePath, String key) {
-    return FlutterAwsS3servicePlatform.instance.uploadFile(filePath, key);
+  static Future<String?> uploadImage(
+      String filepath, String bucket, String identity) async {
+    final Map<String, dynamic> params = <String, dynamic>{
+      'filePath': filepath,
+      'bucket': bucket,
+      'identity': identity,
+    };
+    final String? imagePath =
+        await _channel.invokeMethod('uploadImageToAmazon', params);
+    return imagePath;
   }
 
-  /// Download a file from S3
-  /// [key] is the S3 object key
-  /// [localPath] is where to save the file locally
-  /// Returns the local path of the downloaded file
-  Future<String> downloadFile(String key, String localPath) {
-    return FlutterAwsS3servicePlatform.instance.downloadFile(key, localPath);
+  static Future<String?> upload(String filepath, String bucket, String identity,
+      String imageName, String region, String subRegion) async {
+    final Map<String, dynamic> params = <String, dynamic>{
+      'filePath': filepath,
+      'bucket': bucket,
+      'identity': identity,
+      'imageName': imageName,
+      'region': region,
+      'subRegion': subRegion
+    };
+    final String? imagePath =
+        await _channel.invokeMethod('uploadImage', params);
+    return imagePath;
   }
 
-  /// Delete a file from S3
-  /// [key] is the S3 object key
-  /// Returns true if deletion was successful
-  Future<bool> deleteFile(String key) {
-    return FlutterAwsS3servicePlatform.instance.deleteFile(key);
+  static Future<String?> delete(String bucket, String identity,
+      String imageName, String region, String subRegion) async {
+    final Map<String, dynamic> params = <String, dynamic>{
+      'bucket': bucket,
+      'identity': identity,
+      'imageName': imageName,
+      'region': region,
+      'subRegion': subRegion
+    };
+    final String? imagePath =
+        await _channel.invokeMethod('deleteImage', params);
+    return imagePath;
   }
 
-  /// List files in the S3 bucket
-  /// Optional [prefix] to filter files by prefix
-  /// Returns a list of file metadata
-  Future<List<Map<String, dynamic>>> listFiles({String? prefix}) {
-    return FlutterAwsS3servicePlatform.instance.listFiles(prefix: prefix);
-  }
-
-  /// Get a signed URL for a file
-  /// [key] is the S3 object key
-  /// [expirationInSeconds] is how long the URL should be valid (default 1 hour)
-  /// Returns the signed URL
-  Future<String> getSignedUrl(String key, {int expirationInSeconds = 3600}) {
-    return FlutterAwsS3servicePlatform.instance.getSignedUrl(
-      key,
-      expirationInSeconds: expirationInSeconds,
-    );
-  }
-
-  Future<String> getPlatformVersion() async {
-    return FlutterAwsS3servicePlatform.instance.getPlatformVersion();
+  static Future<List<String>> listFiles(String bucket, String identity,
+      String prefix, String region, String subRegion) async {
+    final Map<String, dynamic> params = <String, dynamic>{
+      'bucket': bucket,
+      'identity': identity,
+      'prefix': prefix,
+      'region': region,
+      'subRegion': subRegion
+    };
+    List<String> files = new List.empty(growable: true);
+    try {
+      List<dynamic> keys = await (_channel.invokeMethod('listFiles', params)
+          as FutureOr<List<dynamic>>);
+      for (String key in keys as Iterable<String>) {
+        files.add("https://s3-$region.amazonaws.com/$bucket/$key");
+      }
+    } on PlatformException catch (e) {
+      debugPrint(e.toString());
+    }
+    return files;
   }
 }
