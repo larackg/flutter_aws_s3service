@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Fix some bug.
+
 ## 0.0.2
 
 * Support iOS s3 operations

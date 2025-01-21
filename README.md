@@ -17,7 +17,7 @@ common S3 operations like uploading, downloading, and managing files in AWS S3 b
 
 ```yaml
 dependencies:
-  flutter_aws_s3service: '^0.0.2'
+  flutter_aws_s3service: '^0.0.3'
 ```
 
 ### Example
@@ -73,7 +73,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```yaml
 dependencies:
-  flutter_aws_s3service: '^0.0.2'
+  flutter_aws_s3service: '^0.0.3'
 ```
 
 Now in your Dart code, you can use:
